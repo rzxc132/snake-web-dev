@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>snake-web dev instance</title>
+    <link rel="stylesheet" href="style.css"/>
+    </head>
+    <body>
+        <div class="button_grid">
+            <button id="action1">🔁</button>
+            <button id="action2">🔁</button>
+            <button id="action3">🔁</button>
+        </div>
+
+        <div class="snake_grid">
+            <p id="snake_l1">⬜⬜⬜⬜⬜</p>
+            <p id="snake_l2">⬜⬜⬜⬜⬜</p>
+            <p id="snake_l3">⬜⌛⌛⌛⬜</p>
+            <p id="snake_l4">⬜⬜⬜⬜⬜</p>
+            <p id="snake_l5">⬜⬜⬜⬜⬜</p>
+        </div>
+
+
+
+
+        <script type="module">
+            function set_board(object) {
+                document.getElementById("snake_l1").innerHTML = object["line1"];
+                document.getElementById("snake_l2").innerHTML = object["line2"];
+                document.getElementById("snake_l3").innerHTML = object["line3"];
+                document.getElementById("snake_l4").innerHTML = object["line4"];
+                document.getElementById("snake_l5").innerHTML = object["line5"];
+
+            }
+
+            function set_buttons(object) {
+                var moves = [];
+                switch (object["last"]) {
+                    case "up":
+                        moves = ["⬅️", "⬆️", "➡️"];
+                        break;
+
+                    case "down":
+                        moves = ["⬅️", "➡️", "⬇️"];
+                        break;
+
+                    case "left":
+                        moves = ["⬅️", "⬆️", "⬇️"];
+                        break;
+
+                    case "right":
+                        moves = ["⬆️", "➡️", "⬇️"];
+                        break;
+                
+                    default:
+                        console.error("Invalid direction.");
+                        fill_board("🟥", "➡️", false);
+                        moves = ["🟥", "🟥", "🟥"];
+                        break;
+                        
+                }
+                document.getElementById("action1").innerHTML = moves[0]
+                document.getElementById("action2").innerHTML = moves[1]
+                document.getElementById("action3").innerHTML = moves[2]
+            }
+
+            function fill_board(item1, item2, buttons) {
+                document.getElementById("snake_l1").innerHTML = item1.repeat(5);
+                document.getElementById("snake_l2").innerHTML = item1.repeat(5);
+                document.getElementById("snake_l3").innerHTML = item2.repeat(5);
+                document.getElementById("snake_l4").innerHTML = item1.repeat(5);
+                document.getElementById("snake_l5").innerHTML = item1.repeat(5);
+                if (buttons) {
+                    document.getElementById("action1").innerHTML = item2
+                    document.getElementById("action2").innerHTML = item2
+                    document.getElementById("action3").innerHTML = item2
+                }
+            }
+
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+            import { getDatabase, ref, set, child, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js"
+            // TODO: Add Firebase SDKs: https://firebase.google.com/docs/web/setup#available-libraries
+        
+            const firebaseConfig = {
+                apiKey: "AIzaSyACat7cM2mSrvdABSKv_oqGlgT17-MStwY",
+                authDomain: "snake-13179.firebaseapp.com",
+                projectId: "snake-13179",
+                storageBucket: "snake-13179.appspot.com",
+                messagingSenderId: "844145466272",
+                appId: "1:844145466272:web:f79a213a9239020de822c5",
+                databaseURL: "https://snake-13179-default-rtdb.firebaseio.com",
+            };
+        
+            const app = initializeApp(firebaseConfig);
+            const database = getDatabase(app);
+            const dbRef = ref(database)
+
+
+            // download database
+            var big_list;
+            get(child(dbRef, "/")).then((snapshot) => {
+                if (snapshot.exists()) {
+                    big_list = snapshot.val();
+                    set_board(big_list);
+                    set_buttons(big_list);
+                } else {
+                    console.log("No data available");
+                    fill_board("🟥", "📄", true);
+                }
+            }).catch((error) => {
+                console.error(error);
+                fill_board("🟥", "❌", true);
+            });
+        </script>
+    </body>
+</html>

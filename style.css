@@ -1,0 +1,22 @@
+html {
+    font-size: 3.5vmax;
+    background-color: rgb(202, 202, 202);
+    text-align: center;
+    transition: 0.3s;
+}
+
+button {
+    font-size: 3.5vmax;
+    background-color: inherit;
+    border: none;
+    transition: 0.3s;
+    padding: 0px;
+}
+
+button:hover {
+    background-color: rgb(110, 110, 110);
+}
+
+p {
+    margin: 0px;
+}
