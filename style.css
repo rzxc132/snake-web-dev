@@ -18,6 +18,14 @@ button:hover {
     cursor: pointer;
 }
 
+button:disabled {
+    filter: grayscale(1);
+}
+
+button:hover:disabled {
+    cursor: wait;
+}
+
 p {
     margin: 0px;
 }
