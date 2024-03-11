@@ -5,13 +5,13 @@
         <link rel="stylesheet" href="style.css"/>
     </head>
     <body>
-        <div class="button_grid">
-            <button id="action1">🔁</button>
-            <button id="action2">🔁</button>
-            <button id="action3">🔁</button>
+        <div class="button_grid" id="button_grid">
+            <button id="button1" onclick="onclick_button(this);">🔁</button>
+            <button id="button2" onclick="onclick_button(this);">🔁</button>
+            <button id="button3" onclick="onclick_button(this);">🔁</button>
         </div>
 
-        <div class="snake_grid">
+        <div class="snake_grid" id="snake_grid">
             <p id="snake_l1">⬜⬜⬜⬜⬜</p>
             <p id="snake_l2">⬜⬜⬜⬜⬜</p>
             <p id="snake_l3">⬜⌛⌛⌛⬜</p>
@@ -20,6 +20,22 @@
         </div>
 
         <script type="module">
+            function update_list() {
+                get(child(dbRef, "/")).then((snapshot) => {
+                if (snapshot.exists()) {
+                    big_list = snapshot.val();
+                    set_board(big_list);
+                    set_buttons(big_list);
+                } else {
+                    console.log("No data available");
+                    fill_board("🟥", "📄", true);
+                }
+                }).catch((error) => {
+                    console.error(error);
+                    fill_board("🟥", "❌", true);
+                });
+            }
+
             function set_board(object) {
                 document.getElementById("snake_l1").innerHTML = object["line1"];
                 document.getElementById("snake_l2").innerHTML = object["line2"];
@@ -55,9 +71,9 @@
                         break;
                         
                 }
-                document.getElementById("action1").innerHTML = moves[0]
-                document.getElementById("action2").innerHTML = moves[1]
-                document.getElementById("action3").innerHTML = moves[2]
+                document.getElementById("button1").innerHTML = moves[0];
+                document.getElementById("button2").innerHTML = moves[1];
+                document.getElementById("button3").innerHTML = moves[2];
             }
 
             function fill_board(item1, item2, buttons) {
@@ -67,14 +83,49 @@
                 document.getElementById("snake_l4").innerHTML = item1.repeat(5);
                 document.getElementById("snake_l5").innerHTML = item1.repeat(5);
                 if (buttons) {
-                    document.getElementById("action1").innerHTML = item2
-                    document.getElementById("action2").innerHTML = item2
-                    document.getElementById("action3").innerHTML = item2
+                    document.getElementById("button1").innerHTML = item2;
+                    document.getElementById("button2").innerHTML = item2;
+                    document.getElementById("button3").innerHTML = item2;
                 }
             }
 
+            window.onclick_button = function(button) {
+                for (var i = 0; i < button.parentNode.children.length; i++) {
+                    button.parentNode.children[i].disabled=true
+                }
+
+                // find what button is
+                var list_item;
+                switch (button.innerHTML) {
+                    case "⬆️":
+                        list_item = "vu";
+                        break;
+                    
+                    case "⬇️":
+                        list_item = "vd";
+                        break;
+
+                    case "⬅️":
+                        list_item = "vl";
+                        break;
+
+                    case "➡️":
+                        list_item = "vr";
+                        break;
+                
+                    default:
+                        console.error("Invalid button.");
+                        fill_board("🟥", "🔳", true);
+                        break;
+                }
+                
+                // update database
+                update_list();
+                console.log(big_list);
+            }
+
             import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-            import { getDatabase, ref, child, get, push, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js"
+            import { getDatabase, ref, child, get, push, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
             // TODO: Add Firebase SDKs: https://firebase.google.com/docs/web/setup#available-libraries
         
             const firebaseConfig = {
@@ -89,28 +140,15 @@
         
             const app = initializeApp(firebaseConfig);
             const database = getDatabase(app);
-            const dbRef = ref(database)
+            const dbRef = ref(database);
 
 
-            // download database
+            // download initial database
             var big_list;
-            get(child(dbRef, "/")).then((snapshot) => {
-                if (snapshot.exists()) {
-                    big_list = snapshot.val();
-                    set_board(big_list);
-                    set_buttons(big_list);
-                } else {
-                    console.log("No data available");
-                    fill_board("🟥", "📄", true);
-                }
-            }).catch((error) => {
-                console.error(error);
-                fill_board("🟥", "❌", true);
-            });
+            update_list();
 
-            // TODO: set up buttons (use disabled attribute)
             // TODO: set up cookies for duplicate checking
-            // TODO: set up user updating database
+            // TODO: set up user updating game board
             // TODO: bring style.css into index.html
         </script>
     </body>
